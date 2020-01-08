@@ -14,11 +14,13 @@
 //**********************************
 //Constructor functions
 //**********************************
-MiniPID::MiniPID(double p, double i, double d){
+MiniPID::MiniPID(double p, double i, double d, unsigned long (*const getTimeUs)()){
+	GetTimeUs = getTimeUs;
 	init();
 	P=p; I=i; D=d;
 }
-MiniPID::MiniPID(double p, double i, double d, double f){
+MiniPID::MiniPID(double p, double i, double d, double f, unsigned long (*const getTimeUs)()){
+	GetTimeUs = getTimeUs;
 	init();
 	P=p; I=i; D=d; F=f;
 }
@@ -41,6 +43,7 @@ void MiniPID::init(){
 	lastOutput=0;
 	outputFilter=0;
 	setpointRange=0;
+	lastTimeUs=0;
 }
 
 //**********************************
@@ -211,14 +214,18 @@ double MiniPID::getOutput(double actual, double setpoint){
 		lastActual=actual;
 		lastOutput=Poutput+Foutput;
 		firstRun=false;
+		lastTimeUs=GetTimeUs();
 	}
+
+	// Calculate dt
+	double dt = (GetTimeUs() - lastTimeUs)/1000000.0f;
 
 
 	//Calculate D Term
 	//Note, this->is negative. this->actually "slows" the system if it's doing
 	//the correct thing, and small values helps prevent output spikes and overshoot 
 
-	Doutput= -D*(actual-lastActual);
+	Doutput= -D*(actual-lastActual)/dt;
 	lastActual=actual;
 
 
@@ -227,7 +234,7 @@ double MiniPID::getOutput(double actual, double setpoint){
 	// 1. maxIoutput restricts the amount of output contributed by the Iterm.
 	// 2. prevent windup by not increasing errorSum if we're already running against our max Ioutput
 	// 3. prevent windup by not increasing errorSum if output is output=maxOutput	
-	Ioutput=I*errorSum;
+	Ioutput=I*errorSum*dt;
 	if(maxIOutput!=0){
 		Ioutput=clamp(Ioutput,-maxIOutput,maxIOutput); 
 	}	
@@ -243,7 +250,7 @@ double MiniPID::getOutput(double actual, double setpoint){
 		// decreases enough for the I term to start acting upon the controller
 		// From that point the I term will build up as would be expected
 	}
-	else if(outputRampRate!=0 && !bounded(output, lastOutput-outputRampRate,lastOutput+outputRampRate) ){
+	else if(outputRampRate!=0 && !bounded(output, lastOutput-outputRampRate*dt,lastOutput+outputRampRate*dt) ){
 		errorSum=error; 
 	}
 	else if(maxIOutput!=0){
@@ -257,7 +264,7 @@ double MiniPID::getOutput(double actual, double setpoint){
 
 	//Restrict output to our specified output and ramp limits
 	if(outputRampRate!=0){
-		output=clamp(output, lastOutput-outputRampRate,lastOutput+outputRampRate);
+		output=clamp(output, lastOutput-outputRampRate*dt,lastOutput+outputRampRate*dt);
 	}
 	if(minOutput!=maxOutput){ 
 		output=clamp(output, minOutput,maxOutput);
