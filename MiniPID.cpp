@@ -14,12 +14,12 @@
 //**********************************
 //Constructor functions
 //**********************************
-MiniPID::MiniPID(double p, double i, double d, unsigned long (*const getTimeUs)()){
+MiniPID::MiniPID(double p, double i, double d, unsigned long long (*const getTimeUs)()){
 	GetTimeUs = getTimeUs;
 	init();
 	P=p; I=i; D=d;
 }
-MiniPID::MiniPID(double p, double i, double d, double f, unsigned long (*const getTimeUs)()){
+MiniPID::MiniPID(double p, double i, double d, double f, unsigned long long (*const getTimeUs)()){
 	GetTimeUs = getTimeUs;
 	init();
 	P=p; I=i; D=d; F=f;
@@ -184,7 +184,7 @@ void MiniPID::setSetpoint(double setpoint){
 * @param target The target value
 * @return calculated output value for driving the actual to the target 
 */
-double MiniPID::getOutput(double actual, double setpoint){
+double MiniPID::getOutput(double actual, double setpoint, bool useExternalDerivative, double externalDerivative){
 	double output;
 	double Poutput;
 	double Ioutput;
@@ -225,8 +225,13 @@ double MiniPID::getOutput(double actual, double setpoint){
 	//Note, this->is negative. this->actually "slows" the system if it's doing
 	//the correct thing, and small values helps prevent output spikes and overshoot 
 
-	Doutput= -D*(actual-lastActual)/dt;
-	lastActual=actual;
+	if (!useExternalDerivative) {
+		Doutput= -D*(actual-lastActual)/dt;
+		lastActual=actual;
+	}
+	else {
+		Doutput = -D*externalDerivative;
+	}
 
 
 
@@ -282,7 +287,7 @@ double MiniPID::getOutput(double actual, double setpoint){
  * @return calculated output value for driving the actual to the target 
  */
 double MiniPID::getOutput(){
-	return getOutput(lastActual,setpoint);
+	return getOutput(lastActual,setpoint, false,0);
 }
 
 /**
@@ -291,7 +296,7 @@ double MiniPID::getOutput(){
  * @return calculated output value for driving the actual to the target 
  */
 double MiniPID::getOutput(double actual){
-	return getOutput(actual,setpoint);
+	return getOutput(actual,setpoint,false,0);
 }
 	
 /**
