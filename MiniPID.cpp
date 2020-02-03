@@ -218,7 +218,9 @@ double MiniPID::getOutput(double actual, double setpoint, bool useExternalDeriva
 	}
 
 	// Calculate dt
-	double dt = (GetTimeUs() - lastTimeUs)/1000000.0f;
+	const unsigned long long currentTimeUs = GetTimeUs();
+	double dt = (currentTimeUs - lastTimeUs)/1000000.0f;
+	lastTimeUs = currentTimeUs;
 
 
 	//Calculate D Term
