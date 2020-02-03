@@ -10,6 +10,7 @@
 */
 
 #include "MiniPID.h"
+#include <iostream>
 
 //**********************************
 //Constructor functions
@@ -222,7 +223,6 @@ double MiniPID::getOutput(double actual, double setpoint, bool useExternalDeriva
 	double dt = (currentTimeUs - lastTimeUs)/1000000.0f;
 	lastTimeUs = currentTimeUs;
 
-
 	//Calculate D Term
 	//Note, this->is negative. this->actually "slows" the system if it's doing
 	//the correct thing, and small values helps prevent output spikes and overshoot 
@@ -235,13 +235,11 @@ double MiniPID::getOutput(double actual, double setpoint, bool useExternalDeriva
 		Doutput = -D*externalDerivative;
 	}
 
-
-
 	//The Iterm is more complex. There's several things to factor in to make it easier to deal with.
 	// 1. maxIoutput restricts the amount of output contributed by the Iterm.
 	// 2. prevent windup by not increasing errorSum if we're already running against our max Ioutput
 	// 3. prevent windup by not increasing errorSum if output is output=maxOutput	
-	Ioutput=I*errorSum*dt;
+	Ioutput=I*errorSum;
 	if(maxIOutput!=0){
 		Ioutput=clamp(Ioutput,-maxIOutput,maxIOutput); 
 	}	
@@ -261,12 +259,12 @@ double MiniPID::getOutput(double actual, double setpoint, bool useExternalDeriva
 		errorSum=error; 
 	}
 	else if(maxIOutput!=0){
-		errorSum=clamp(errorSum+error,-maxError,maxError);
+		errorSum=clamp(errorSum+error*dt,-maxError,maxError);
 		// In addition to output limiting directly, we also want to prevent I term 
 		// buildup, so restrict the error directly
 	}
 	else{
-		errorSum+=error;
+		errorSum+=error*dt;
 	}
 
 	//Restrict output to our specified output and ramp limits
