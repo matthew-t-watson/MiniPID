@@ -249,14 +249,14 @@ double MiniPID::getOutput(double actual, double setpoint, bool useExternalDeriva
 
 	//Figure out what we're doing with the error.
 	if(minOutput!=maxOutput && !bounded(output, minOutput,maxOutput) ){
-		errorSum=error; 
+		//errorSum=error;
 		// reset the error sum to a sane level
 		// Setting to current error ensures a smooth transition when the P term 
 		// decreases enough for the I term to start acting upon the controller
 		// From that point the I term will build up as would be expected
 	}
 	else if(outputRampRate!=0 && !bounded(output, lastOutput-outputRampRate*dt,lastOutput+outputRampRate*dt) ){
-		errorSum=error; 
+		//errorSum=error;
 	}
 	else if(maxIOutput!=0){
 		errorSum=clamp(errorSum+error*dt,-maxError,maxError);
