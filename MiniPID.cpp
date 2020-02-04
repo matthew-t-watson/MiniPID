@@ -10,7 +10,6 @@
 */
 
 #include "MiniPID.h"
-#include <iostream>
 
 //**********************************
 //Constructor functions
