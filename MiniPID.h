@@ -22,7 +22,7 @@ public:
 	void setOutputFilter(double);
 	double getOutput();
 	double getOutput(double);
-	double getOutput(double, double, bool, double);
+	double getOutput(double, double, bool=false, double=0);
 
 private:
 	double clamp(double, double, double);
