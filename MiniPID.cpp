@@ -222,6 +222,10 @@ double MiniPID::getOutput(double actual, double setpoint, bool useExternalDeriva
 	double dt = (currentTimeUs - lastTimeUs)/1000000.0f;
 	lastTimeUs = currentTimeUs;
 
+	/* Ensure dt stays sane during loop delay */
+	if (dt > 0.05)
+		dt = 0.05;
+
 	//Calculate D Term
 	//Note, this->is negative. this->actually "slows" the system if it's doing
 	//the correct thing, and small values helps prevent output spikes and overshoot 
