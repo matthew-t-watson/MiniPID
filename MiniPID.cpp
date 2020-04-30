@@ -162,6 +162,8 @@ void MiniPID::setOutputLimits(double minimum,double maximum){
  */
 void MiniPID::setDirection(bool reversed){
 	this->reversed=reversed;
+	checkSigns(); /* Invert gains if necessary. Without this call gains provided via the constructor won't be changed, and direction won't reverse. */
+
 }
 
 //**********************************
