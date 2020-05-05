@@ -213,7 +213,6 @@ double MiniPID::getOutput(double actual, double setpoint, double dt, bool useExt
 		lastActual=actual;
 		lastOutput=Poutput+Foutput;
 		firstRun=false;
-		lastTimeUs=GetTimeUs();
 	}
 
 	//Calculate D Term
