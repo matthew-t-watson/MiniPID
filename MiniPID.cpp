@@ -14,12 +14,12 @@
 //**********************************
 //Constructor functions
 //**********************************
-MiniPID::MiniPID(double p, double i, double d, unsigned long long (*const getTimeUs)()){
+MiniPID::MiniPID(double p, double i, double d){
 	GetTimeUs = getTimeUs;
 	init();
 	P=p; I=i; D=d;
 }
-MiniPID::MiniPID(double p, double i, double d, double f, unsigned long long (*const getTimeUs)()){
+MiniPID::MiniPID(double p, double i, double d, double f){
 	GetTimeUs = getTimeUs;
 	init();
 	P=p; I=i; D=d; F=f;
@@ -186,7 +186,7 @@ void MiniPID::setSetpoint(double setpoint){
 * @param target The target value
 * @return calculated output value for driving the actual to the target 
 */
-double MiniPID::getOutput(double actual, double setpoint, bool useExternalDerivative, double externalDerivative){
+double MiniPID::getOutput(double actual, double setpoint, double dt, bool useExternalDerivative, double externalDerivative){
 	double output;
 	double Poutput;
 	double Ioutput;
@@ -218,15 +218,6 @@ double MiniPID::getOutput(double actual, double setpoint, bool useExternalDeriva
 		firstRun=false;
 		lastTimeUs=GetTimeUs();
 	}
-
-	// Calculate dt
-	const unsigned long long currentTimeUs = GetTimeUs();
-	double dt = (currentTimeUs - lastTimeUs)/1000000.0f;
-	lastTimeUs = currentTimeUs;
-
-	/* Ensure dt stays sane during loop delay */
-	if (dt > 0.05)
-		dt = 0.05;
 
 	//Calculate D Term
 	//Note, this->is negative. this->actually "slows" the system if it's doing
@@ -300,8 +291,8 @@ double MiniPID::getOutput(){
  * @param actual
  * @return calculated output value for driving the actual to the target 
  */
-double MiniPID::getOutput(double actual){
-	return getOutput(actual,setpoint,false,0);
+double MiniPID::getOutput(double actual, double dt){
+	return getOutput(actual,setpoint,dt,false,0);
 }
 	
 /**

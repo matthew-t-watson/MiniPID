@@ -3,8 +3,8 @@
 
 class MiniPID{
 public:
-	MiniPID(double, double, double, unsigned long long(*const)());
-	MiniPID(double, double, double, double, unsigned long long(*const)());
+	MiniPID(double, double, double);
+	MiniPID(double, double, double, double);
 	void setP(double);
 	void setI(double);
 	void setD(double);
@@ -21,15 +21,14 @@ public:
 	void setSetpointRange(double);
 	void setOutputFilter(double);
 	double getOutput();
-	double getOutput(double);
-	double getOutput(double, double, bool=false, double=0);
+	double getOutput(double, double);
+	double getOutput(double, double, double, bool=false, double=0);
 
 private:
 	double clamp(double, double, double);
 	bool bounded(double, double, double);
 	void checkSigns();
 	void init();
-	unsigned long long (*GetTimeUs)();
 
 	double P;
 	double I;
@@ -56,7 +55,5 @@ private:
 	double outputFilter;
 
 	double setpointRange;
-
-	unsigned long long lastTimeUs;
 };
 #endif
