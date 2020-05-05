@@ -15,12 +15,10 @@
 //Constructor functions
 //**********************************
 MiniPID::MiniPID(double p, double i, double d){
-	GetTimeUs = getTimeUs;
 	init();
 	P=p; I=i; D=d;
 }
 MiniPID::MiniPID(double p, double i, double d, double f){
-	GetTimeUs = getTimeUs;
 	init();
 	P=p; I=i; D=d; F=f;
 }
@@ -43,7 +41,6 @@ void MiniPID::init(){
 	lastOutput=0;
 	outputFilter=0;
 	setpointRange=0;
-	lastTimeUs=0;
 }
 
 //**********************************
